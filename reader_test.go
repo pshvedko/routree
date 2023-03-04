@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func Example_x() {
+func Example_readPattern() {
 
 	for _, s := range []string{
 		"1.*",
