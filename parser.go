@@ -41,7 +41,7 @@ func (r innerReader) ReadByte() (byte, error) {
 }
 
 func splitPattern(r io.ByteReader) ([]*bytes.Buffer, error) {
-	bb := []*bytes.Buffer{bytes.NewBuffer([]byte{})}
+	bb := []*bytes.Buffer{{}}
 	var (
 		rr, pp []*bytes.Buffer
 	)
@@ -64,10 +64,10 @@ func splitPattern(r io.ByteReader) ([]*bytes.Buffer, error) {
 				if err != nil {
 					return nil, err
 				}
-				bb = []*bytes.Buffer{bytes.NewBuffer([]byte{})}
+				bb = []*bytes.Buffer{{}}
 			default:
-				for _, b := range bb {
-					b.WriteByte(c)
+				for i := range bb {
+					bb[i].WriteByte(c)
 				}
 			}
 		case io.EOF:
