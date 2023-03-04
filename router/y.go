@@ -1,3 +1,0 @@
-// Package router ...
-//go:generate goyacc -o router.go -p Calc router.y
-package router
