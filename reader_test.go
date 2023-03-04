@@ -34,7 +34,7 @@ func Example_readPattern() {
 		"[1|2]",
 		"[1|2-4|0]",
 		//
-		"[1]*",
+		"1[2|4]456.*",
 	} {
 		pattern, err := readPattern(bytes.NewBufferString(s))
 		if err != nil {
