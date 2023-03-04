@@ -78,7 +78,7 @@ func splitPattern(r io.ByteReader) ([]*bytes.Buffer, error) {
 	}
 }
 
-func makeBuffer(bb []*bytes.Buffer, pp []*bytes.Buffer) ([]*bytes.Buffer, error) {
+func makeBuffer(bb, pp []*bytes.Buffer) ([]*bytes.Buffer, error) {
 	var qq []*bytes.Buffer
 	for _, b := range bb {
 		for _, p := range pp {
@@ -97,7 +97,7 @@ func makeBuffer(bb []*bytes.Buffer, pp []*bytes.Buffer) ([]*bytes.Buffer, error)
 	return qq, nil
 }
 
-func joinBuffer(rr []*bytes.Buffer, bb []*bytes.Buffer) ([]*bytes.Buffer, error) {
+func joinBuffer(rr, bb []*bytes.Buffer) ([]*bytes.Buffer, error) {
 	for _, b := range bb {
 		if b.Len() == 0 {
 			return nil, io.ErrUnexpectedEOF
