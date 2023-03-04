@@ -40,18 +40,15 @@ func (r innerReader) ReadByte() (byte, error) {
 	}
 }
 
-type byteReadWriter interface {
+type byteReader interface {
 	io.ByteReader
-	io.ByteWriter
-	io.ReaderFrom
-	io.Writer
 	Bytes() []byte
 }
 
-func splitPattern(r io.ByteReader) ([]byteReadWriter, error) {
+func splitPattern(r io.ByteReader) ([]byteReader, error) {
 	bb := []*bytes.Buffer{bytes.NewBuffer([]byte{})}
 	var (
-		rr, pp []byteReadWriter
+		rr, pp []byteReader
 	)
 	for {
 		c, err := r.ReadByte()
@@ -86,7 +83,7 @@ func splitPattern(r io.ByteReader) ([]byteReadWriter, error) {
 	}
 }
 
-func makeBuffer(bb []*bytes.Buffer, pp []byteReadWriter) (qq []*bytes.Buffer, err error) {
+func makeBuffer(bb []*bytes.Buffer, pp []byteReader) (qq []*bytes.Buffer, err error) {
 	for _, b := range bb {
 		for _, p := range pp {
 			q := bytes.NewBuffer(b.Bytes())
@@ -100,12 +97,12 @@ func makeBuffer(bb []*bytes.Buffer, pp []byteReadWriter) (qq []*bytes.Buffer, er
 	return
 }
 
-func joinBuffer(rw []byteReadWriter, bb ...*bytes.Buffer) ([]byteReadWriter, error) {
+func joinBuffer(rr []byteReader, bb ...*bytes.Buffer) ([]byteReader, error) {
 	for _, b := range bb {
 		if b.Len() == 0 {
 			return nil, io.ErrUnexpectedEOF
 		}
-		rw = append(rw, b)
+		rr = append(rr, b)
 	}
-	return rw, nil
+	return rr, nil
 }
