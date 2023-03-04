@@ -147,12 +147,12 @@ func makeDigitRange(a, b byte) (uint16, error) {
 	if f >= l {
 		return 0, errIllegalRange(a, b)
 	}
-	var digit uint16
-	for f < l {
-		digit |= f
+	var d uint16
+	for f <= l {
+		d |= f
 		f <<= 1
 	}
-	return digit | l, nil
+	return d, nil
 }
 
 func makeDigit(c byte) (uint16, error) {
