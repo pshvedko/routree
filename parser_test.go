@@ -8,8 +8,7 @@ import (
 	"testing"
 )
 
-func Example_readPattern() {
-
+func ExampleParse() {
 	for _, s := range []string{
 		"1.*",
 		"1**",
@@ -33,10 +32,16 @@ func Example_readPattern() {
 		"[1-3|7|9]",
 		"[1|2]",
 		"[1|2-4|0]",
-		//
 		"1[2|4]567.*",
+		//
+		"12345,67890",
+		"1(22.,33.)4(1,2)",
+		"1(22.,33.)4(1)",
+		"1(22.,33.)4()",
+		"1(22.,33.)4(1,)",
+		"1(22.,33.)4(,1)",
 	} {
-		pattern, err := readPattern(bytes.NewBufferString(s))
+		pattern, err := Parse(bytes.NewBufferString(s))
 		if err != nil {
 			fmt.Println(s, err)
 			continue
@@ -47,27 +52,27 @@ func Example_readPattern() {
 	// Output:
 }
 
-func Test_readPattern(t *testing.T) {
+func TestParse(t *testing.T) {
 	type args struct {
 		r io.ByteReader
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    []uint16
+		want    [][]uint16
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 		{
 			name:    "",
 			args:    args{bytes.NewBufferString("*")},
-			want:    []uint16{0},
+			want:    [][]uint16{{0}},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := readPattern(tt.args.r)
+			got, err := Parse(tt.args.r)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("readPattern() error = %v, wantErr %v", err, tt.wantErr)
 				return
