@@ -17,7 +17,10 @@ func TestParse(t *testing.T) {
 		// TODO: Add test cases.
 		{
 			args: "*",
-			want: [][]uint16{{0}},
+			err:  ErrIllegalSymbol{'*'},
+		}, {
+			args: ".*",
+			want: [][]uint16{{1023, 0}},
 		}, {
 			args: "1.*",
 			want: [][]uint16{{2, 1023, 0}},

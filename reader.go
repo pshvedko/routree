@@ -10,6 +10,9 @@ func readPattern(r io.ByteReader) ([]uint16, error) {
 		d, err := readDigit(r)
 		switch err {
 		case nil:
+			if p == nil && d == 0 {
+				return nil, errIllegalSymbol('*')
+			}
 			p = append(p, d)
 		case io.EOF:
 			return p, nil
