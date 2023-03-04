@@ -23,6 +23,6 @@ func (e ErrIllegalSymbol) Error() string {
 	return fmt.Sprintf("illegal symbol '%c'", e.c)
 }
 
-func errIllegalRange(a byte, b byte) error {
+func errIllegalRange(a, b byte) error {
 	return ErrIllegalRange{a: a, b: b}
 }
