@@ -13,8 +13,8 @@ func Parse(r io.ByteReader) ([][]uint16, error) {
 	}
 	var pp [][]uint16
 	var p []uint16
-	for _, r = range rr {
-		p, err = readPattern(r)
+	for i := range rr {
+		p, err = readPattern(&rr[i])
 		if err != nil {
 			return nil, err
 		}
@@ -40,11 +40,9 @@ func (r innerReader) ReadByte() (byte, error) {
 	}
 }
 
-func splitPattern(r io.ByteReader) ([]*bytes.Buffer, error) {
-	bb := []*bytes.Buffer{{}}
-	var (
-		rr, pp []*bytes.Buffer
-	)
+func splitPattern(r io.ByteReader) ([]bytes.Buffer, error) {
+	var rr, pp, bb []bytes.Buffer
+	bb = []bytes.Buffer{{}}
 	for {
 		c, err := r.ReadByte()
 		switch err {
@@ -64,7 +62,7 @@ func splitPattern(r io.ByteReader) ([]*bytes.Buffer, error) {
 				if err != nil {
 					return nil, err
 				}
-				bb = []*bytes.Buffer{{}}
+				bb = []bytes.Buffer{{}}
 			default:
 				for i := range bb {
 					bb[i].WriteByte(c)
@@ -78,8 +76,8 @@ func splitPattern(r io.ByteReader) ([]*bytes.Buffer, error) {
 	}
 }
 
-func makeBuffer(bb, pp []*bytes.Buffer) ([]*bytes.Buffer, error) {
-	var qq []*bytes.Buffer
+func makeBuffer(bb, pp []bytes.Buffer) ([]bytes.Buffer, error) {
+	var qq []bytes.Buffer
 	for _, b := range bb {
 		for _, p := range pp {
 			var q bytes.Buffer
@@ -91,13 +89,13 @@ func makeBuffer(bb, pp []*bytes.Buffer) ([]*bytes.Buffer, error) {
 			if err != nil {
 				return nil, err
 			}
-			qq = append(qq, &q)
+			qq = append(qq, q)
 		}
 	}
 	return qq, nil
 }
 
-func joinBuffer(rr, bb []*bytes.Buffer) ([]*bytes.Buffer, error) {
+func joinBuffer(rr, bb []bytes.Buffer) ([]bytes.Buffer, error) {
 	for _, b := range bb {
 		if b.Len() == 0 {
 			return nil, io.ErrUnexpectedEOF
