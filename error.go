@@ -1,6 +1,8 @@
 package routree
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type ErrIllegalRange struct {
 	a byte
