@@ -269,11 +269,11 @@ func ExampleRouter_Add() {
 		"7(49[5|9]).......",
 		"1(72[0-9])......*",
 	} {
-		p, err := ParsePattern(pattern)
+		patterns, err := ParsePattern(pattern)
 		if err != nil {
 			return
 		}
-		r.Add(p, fmt.Sprintf("%d:%q", i, pattern))
+		r.Add(patterns, fmt.Sprintf("%d:%q", i, pattern))
 	}
 	for _, number := range []string{
 		"74951234567",
