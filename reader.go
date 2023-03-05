@@ -156,5 +156,8 @@ func makeDigitRange(a, b byte) (uint16, error) {
 }
 
 func makeDigit(c byte) (uint16, error) {
+	if c < '0' || c > '9' {
+		return 0, errIllegalSymbol(c)
+	}
 	return 1 << (c - '0'), nil
 }
