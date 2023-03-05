@@ -14,7 +14,7 @@ for _, pattern := range []string{
 	if err != nil {
 		return
 	}
-    r.Add(patterns, fmt.Sprintf("%d:%q", i, pattern))
+	r.Add(patterns, fmt.Sprintf("%d:%q", i, pattern))
 }
 for _, number := range []string{
 	"74951234567",
