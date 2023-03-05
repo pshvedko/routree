@@ -5,14 +5,22 @@ import (
 	"io"
 )
 
+// Pattern ...
+type Pattern []uint16
+
+// ParseString ...
+func ParseString(pattern string) ([]Pattern, error) {
+	return Parse(bytes.NewBufferString(pattern))
+}
+
 // Parse ...
-func Parse(r io.ByteReader) ([][]uint16, error) {
+func Parse(r io.ByteReader) ([]Pattern, error) {
 	rr, err := splitPattern(r)
 	if err != nil {
 		return nil, err
 	}
-	var pp [][]uint16
-	var p []uint16
+	var pp []Pattern
+	var p Pattern
 	for i := range rr {
 		p, err = readPattern(&rr[i])
 		if err != nil {

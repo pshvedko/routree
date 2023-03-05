@@ -1,13 +1,12 @@
 package routree
 
 import (
-	"bytes"
 	"io"
 	"reflect"
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParseString(t *testing.T) {
 	tests := []struct {
 		name string
 		args string
@@ -112,7 +111,7 @@ func TestParse(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Parse(bytes.NewBufferString(tt.args))
+			got, err := ParseString(tt.args)
 			if !reflect.DeepEqual(err, tt.err) {
 				t.Errorf("readPattern() error = %v, err %v", err, tt.err)
 				return
