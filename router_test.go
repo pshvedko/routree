@@ -171,25 +171,26 @@ func ExampleRouter_Add() {
 	for _, pattern := range []string{
 		// FIXME
 		".*",
+		"7495123.*",
+
+		"7(49[5|9]).......*",
 		"7(49[5|9]).......",
-		"1(72[0-9]).......",
+
+		"1(72[0-9])......*",
 	} {
 		p, err := ParseString(pattern)
 		if err != nil {
 			return
 		}
-		r.Add(p, map[string]interface{}{"pattern": pattern})
+		r.Add(p, "/"+pattern+"/")
 	}
-	phone1, err := ParseString("74951234567")
-	if err != nil {
-		return
+	for _, number := range []string{"74951234567", "749512345678", "17211234567"} {
+		phone, err := ParseString(number)
+		if err != nil {
+			return
+		}
+		fmt.Println(number, "\t", r.Match(phone[0]))
 	}
-	phone2, err := ParseString("17211234567")
-	if err != nil {
-		return
-	}
-	fmt.Println(r.Match(phone1[0]))
-	fmt.Println(r.Match(phone2[0]))
 	// Output:
 	// [map[pattern:7(49[5|9]).......]]
 	// [map[pattern:1(72[0-9]).......]]

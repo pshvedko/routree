@@ -27,21 +27,39 @@ func (nn Nodes) Swap(i, j int) {
 }
 
 func (nn *Nodes) Add(p Pattern, v interface{}) {
-	if len(p) == 0 {
+	p, u := nextDigit(p)
+	if p == nil {
 		return
 	}
-	n := nn.Get(p[0])
+	n := nn.Get(u)
 	if n == nil {
-		n = new(Node)
-		n.u = p[0]
+		n = &Node{
+			u: u,
+		}
+		if u&0x8000 > 0 {
+			n.n = append(n.n, n)
+		}
 		*nn = append(*nn, n)
 		sort.Sort(nn)
 	}
-	if len(p) == 1 {
+	switch len(p) {
+	case 0:
 		n.v = v
-		return
+	default:
+		n.n.Add(p, v)
 	}
-	n.n.Add(p[1:], v)
+}
+
+func nextDigit(q []uint16) (p []uint16, u uint16) {
+	if len(q) > 0 {
+		u = q[0]
+		p = q[1:]
+		if len(p) == 1 && p[0] == 0 {
+			p = p[1:]
+			u |= 0x8000
+		}
+	}
+	return
 }
 
 func (nn Nodes) Get(u uint16) *Node {
@@ -61,12 +79,10 @@ func (nn Nodes) Match(p Pattern) []interface{} {
 	if len(p) > 0 {
 		for _, n := range nn {
 			if n.u&p[0] > 0 {
-				switch {
-				case len(p) == 1 && n.v != nil:
-					return []interface{}{n.v}
-				case n.n != nil:
-					vv = append(vv, n.n.Match(p[1:])...)
+				if len(p) == 1 && n.v != nil {
+					vv = append(vv, n.v)
 				}
+				vv = append(vv, n.n.Match(p[1:])...)
 			}
 		}
 	}

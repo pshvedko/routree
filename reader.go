@@ -31,9 +31,9 @@ func readDigit(r io.ByteReader) (uint16, error) {
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		return makeDigit(c)
 	case '.':
-		return 0x3ff, nil
+		return 0x7FFF, nil
 	case '*':
-		return readEOF(r)
+		return readEnd(r)
 	case '[':
 		return readDigitFirst(r)
 	default:
@@ -99,7 +99,7 @@ func readDigitRange(r io.ByteReader, a, b byte) (uint16, error) {
 	}
 }
 
-func readEOF(r io.ByteReader) (uint16, error) {
+func readEnd(r io.ByteReader) (uint16, error) {
 	c, err := r.ReadByte()
 	switch err {
 	case nil:
