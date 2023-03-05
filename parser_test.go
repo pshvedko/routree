@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestParseString(t *testing.T) {
+func TestParsePattern(t *testing.T) {
 	tests := []struct {
 		name string
 		args string
@@ -111,13 +111,13 @@ func TestParseString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseString(tt.args)
+			got, err := ParsePattern(tt.args)
 			if !reflect.DeepEqual(err, tt.err) {
 				t.Errorf("readPattern() error = %v, err %v", err, tt.err)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ParseString() got = %v, want %v", got, tt.want)
+				t.Errorf("ParsePattern() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

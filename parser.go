@@ -8,8 +8,34 @@ import (
 // Pattern ...
 type Pattern []uint16
 
-// ParseString ...
-func ParseString(pattern string) ([]Pattern, error) {
+type phoneReader struct {
+	r io.ByteReader
+}
+
+func (r phoneReader) ReadByte() (byte, error) {
+	c, err := r.r.ReadByte()
+	if err != nil {
+		return 0, err
+	}
+	switch c {
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		return c, nil
+	default:
+		return 0, errIllegalSymbol(c)
+	}
+}
+
+// ParsePhone ...
+func ParsePhone(number string) (Pattern, error) {
+	patterns, err := Parse(phoneReader{r: bytes.NewBufferString(number)})
+	if err != nil {
+		return nil, err
+	}
+	return patterns[0], nil
+}
+
+// ParsePattern ...
+func ParsePattern(pattern string) ([]Pattern, error) {
 	return Parse(bytes.NewBufferString(pattern))
 }
 
