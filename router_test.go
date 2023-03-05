@@ -15,13 +15,28 @@ func Test_nodes_Add(t *testing.T) {
 		name string
 		nn   Nodes
 		args args
+		want Nodes
 	}{
 		// TODO: Add test cases.
-		{},
+		{
+			nn: nil,
+			args: args{
+				p: []uint16{1},
+				v: nil,
+			},
+			want: Nodes{{
+				n: nil,
+				u: 1,
+				v: nil,
+			}},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.nn.Add(tt.args.p, tt.args.v)
+			if !reflect.DeepEqual(tt.nn, tt.want) {
+				t.Errorf("Add() = %v, want %v", tt.nn, tt.want)
+			}
 		})
 	}
 }
@@ -37,7 +52,29 @@ func Test_nodes_At(t *testing.T) {
 		want *Node
 	}{
 		// TODO: Add test cases.
-		{},
+		{
+			nn: Nodes{{
+				n: nil,
+				u: 0,
+				v: nil,
+			}, {
+				n: nil,
+				u: 1,
+				v: nil,
+			}, {
+				n: nil,
+				u: 2,
+				v: nil,
+			}},
+			args: args{
+				i: 1,
+			},
+			want: &Node{
+				n: nil,
+				u: 1,
+				v: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -59,7 +96,29 @@ func Test_nodes_Get(t *testing.T) {
 		want *Node
 	}{
 		// TODO: Add test cases.
-		{},
+		{
+			nn: Nodes{{
+				n: nil,
+				u: 0,
+				v: nil,
+			}, {
+				n: nil,
+				u: 1,
+				v: nil,
+			}, {
+				n: nil,
+				u: 2,
+				v: nil,
+			}},
+			args: args{
+				u: 1,
+			},
+			want: &Node{
+				n: nil,
+				u: 1,
+				v: nil,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -77,7 +136,22 @@ func Test_nodes_Len(t *testing.T) {
 		want int
 	}{
 		// TODO: Add test cases.
-		{},
+		{
+			nn: Nodes{{
+				n: nil,
+				u: 0,
+				v: nil,
+			}, {
+				n: nil,
+				u: 1,
+				v: nil,
+			}, {
+				n: nil,
+				u: 2,
+				v: nil,
+			}},
+			want: 3,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -100,7 +174,26 @@ func Test_nodes_Less(t *testing.T) {
 		want bool
 	}{
 		// TODO: Add test cases.
-		{},
+		{
+			nn: Nodes{{
+				n: nil,
+				u: 0,
+				v: nil,
+			}, {
+				n: nil,
+				u: 1,
+				v: nil,
+			}, {
+				n: nil,
+				u: 2,
+				v: nil,
+			}},
+			args: args{
+				i: 1,
+				j: 2,
+			},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
