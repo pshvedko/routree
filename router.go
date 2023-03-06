@@ -37,7 +37,7 @@ func (nn *Nodes) Add(p Pattern, v interface{}) {
 			u: u,
 		}
 		if u&0x8000 > 0 {
-			n.n = append(n.n, n)
+			n.n = append(n.n, n) // TODO unlink cyclic reference before delete
 		}
 		*nn = append(*nn, n)
 		sort.Sort(nn)
