@@ -19,16 +19,16 @@ func TestParsePattern(t *testing.T) {
 			err:  ErrIllegalSymbol{'*'},
 		}, {
 			args: ".*",
-			want: []Pattern{{1023, 0}},
+			want: []Pattern{{1023 | 0x8000}},
 		}, {
 			args: "1.*",
-			want: []Pattern{{2, 1023, 0}},
+			want: []Pattern{{2, 1023 | 0x8000}},
 		}, {
 			args: "1**",
 			err:  ErrIllegalSymbol{'*'},
 		}, {
 			args: "11*",
-			want: []Pattern{{2, 2, 0}},
+			want: []Pattern{{2, 2 | 0x8000}},
 		}, {
 			args: "11.",
 			want: []Pattern{{2, 2, 1023}},
@@ -85,7 +85,7 @@ func TestParsePattern(t *testing.T) {
 			want: []Pattern{{31}},
 		}, {
 			args: "1[2|4]567.*",
-			want: []Pattern{{2, 20, 32, 64, 128, 1023, 0}},
+			want: []Pattern{{2, 20, 32, 64, 128, 1023 | 0x8000}},
 		}, {
 			args: "12345,67890",
 			want: []Pattern{{2, 4, 8, 16, 32}, {64, 128, 256, 512, 1}},

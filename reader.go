@@ -7,14 +7,18 @@ import (
 func readPattern(r io.ByteReader) ([]uint16, error) {
 	var p []uint16
 	for {
-		d, err := readDigit(r)
+		u, err := readDigit(r)
 		switch err {
 		case nil:
-			// TODO apply 0x8000 0x4000 as bitwise or to previous digit
-			if p == nil && d == 0 {
-				return nil, errIllegalSymbol('*')
+			switch u {
+			case 0x8000, 0x4000:
+				if len(p) == 0 {
+					return nil, errIllegalSymbol([...]byte{0, '#', '*'}[u>>14])
+				}
+				p[len(p)-1] |= u
+			default:
+				p = append(p, u)
 			}
-			p = append(p, d)
 		case io.EOF:
 			return p, nil
 		default:
@@ -34,11 +38,11 @@ func readDigit(r io.ByteReader) (uint16, error) {
 	case '.':
 		return 0x3FF, nil
 	case '*':
-		return readEnd(r) // TODO return 0x8000 instead 0
+		return readEnd(r)
 	case '[':
 		return readDigitFirst(r)
 	case '#':
-		fallthrough // TODO return 0x4000 instead error
+		fallthrough // TODO return 0x4000
 	default:
 		return 0, errIllegalSymbol(c)
 	}
@@ -108,7 +112,7 @@ func readEnd(r io.ByteReader) (uint16, error) {
 	case nil:
 		return 0, errIllegalSymbol(c)
 	case io.EOF:
-		return 0, nil
+		return 0x8000, nil
 	default:
 		return 0, err
 	}
@@ -163,16 +167,4 @@ func makeDigit(c byte) (uint16, error) {
 		return 0, errIllegalSymbol(c)
 	}
 	return 1 << (c - '0'), nil
-}
-
-func nextDigit(q []uint16) (p []uint16, u uint16) {
-	if len(q) > 0 {
-		u = q[0]
-		p = q[1:]
-		if len(p) > 0 && p[0] == 0 {
-			p = p[1:]
-			u |= 0x8000
-		}
-	}
-	return
 }

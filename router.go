@@ -27,10 +27,10 @@ func (nn Nodes) Swap(i, j int) {
 }
 
 func (nn *Nodes) Add(p Pattern, v interface{}) {
-	p, u := nextDigit(p)
-	if p == nil {
+	if len(p) == 0 {
 		return
 	}
+	u, p := p[0], p[1:]
 	n := nn.Get(u)
 	if n == nil {
 		n = &Node{
@@ -66,7 +66,7 @@ func (nn Nodes) Match(p Pattern) []interface{} {
 	var vv []interface{}
 	if len(p) > 0 {
 		for _, n := range nn {
-			if n.u&p[0] == p[0] {
+			if n.u&p[0]&0x7FFF == p[0] {
 				if len(p) == 1 && n.v != nil {
 					vv = append(vv, n.v)
 				}
