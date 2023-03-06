@@ -10,6 +10,7 @@ func readPattern(r io.ByteReader) ([]uint16, error) {
 		d, err := readDigit(r)
 		switch err {
 		case nil:
+			// TODO apply 0x8000 0x4000 as bitwise or to previous digit
 			if p == nil && d == 0 {
 				return nil, errIllegalSymbol('*')
 			}
@@ -33,9 +34,11 @@ func readDigit(r io.ByteReader) (uint16, error) {
 	case '.':
 		return 0x3FF, nil
 	case '*':
-		return readEnd(r)
+		return readEnd(r) // TODO return 0x8000 instead 0
 	case '[':
 		return readDigitFirst(r)
+	case '#':
+		fallthrough // TODO return 0x4000 instead error
 	default:
 		return 0, errIllegalSymbol(c)
 	}
