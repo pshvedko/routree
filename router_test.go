@@ -261,13 +261,13 @@ func Test_nodes_Swap(t *testing.T) {
 
 func ExampleRouter_Add() {
 	r := Router{}
-	for i, pattern := range []string{
-		".*",
-		"7495123.*",
-		"7(49[5|9]).......*",
-		"7(49[5|9])......*",
-		"7(49[5|9]).......",
-		"1(72[0-9])......*",
+	for i, pattern := range map[int]string{
+		0: ".*",
+		1: "7495123.*",
+		2: "7(49[5|9]).......*",
+		3: "7(49[5|9])......*",
+		4: "7(49[5|9]).......",
+		5: "1(72[0-9])......*",
 	} {
 		patterns, err := ParsePattern(pattern)
 		if err != nil {
