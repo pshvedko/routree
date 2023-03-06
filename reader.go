@@ -166,7 +166,7 @@ func nextDigit(q []uint16) (p []uint16, u uint16) {
 	if len(q) > 0 {
 		u = q[0]
 		p = q[1:]
-		if len(p) == 1 && p[0] == 0 {
+		if len(p) > 0 && p[0] == 0 {
 			p = p[1:]
 			u |= 0x8000
 		}

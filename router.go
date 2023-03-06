@@ -36,7 +36,7 @@ func (nn *Nodes) Add(p Pattern, v interface{}) {
 		n = &Node{
 			u: u,
 		}
-		if u&0x8000 > 0 {
+		if u&0x8000 == 0x8000 {
 			n.n = append(n.n, n) // TODO unlink cyclic reference before delete
 		}
 		*nn = append(*nn, n)
@@ -66,7 +66,7 @@ func (nn Nodes) Match(p Pattern) []interface{} {
 	var vv []interface{}
 	if len(p) > 0 {
 		for _, n := range nn {
-			if n.u&p[0] > 0 {
+			if n.u&p[0] == p[0] {
 				if len(p) == 1 && n.v != nil {
 					vv = append(vv, n.v)
 				}
