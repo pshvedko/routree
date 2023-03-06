@@ -2,7 +2,7 @@
 
 ```go	
 r := Router{}
-for _, pattern := range []string{
+for i, pattern := range []string{
 	".*",
 	"7495123.*",
 	"7(49[5|9]).......*",
