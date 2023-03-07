@@ -12,7 +12,7 @@ func readPattern(r io.ByteReader) ([]uint16, error) {
 		case nil:
 			switch u {
 			case 0x8000, 0x4000:
-				if len(p) == 0 {
+				if len(p) == 0 || u&p[len(p)-1] == u {
 					return nil, errIllegalSymbol([...]byte{0, '#', '*'}[u>>14])
 				}
 				p[len(p)-1] |= u
