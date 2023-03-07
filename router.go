@@ -68,7 +68,7 @@ func (nn Nodes) Match(p Pattern) []interface{} {
 		u := p[0]
 		p = p[1:]
 		for _, n := range nn {
-			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 { // TODO #
+			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 {
 				if len(p) == 0 && n.v != nil {
 					vv = append(vv, n.v)
 				}
