@@ -65,12 +65,14 @@ func (nn Nodes) At(i int) *Node {
 func (nn Nodes) Match(p Pattern) []interface{} {
 	var vv []interface{}
 	if len(p) > 0 {
+		u := p[0]
+		p = p[1:]
 		for _, n := range nn {
-			if n.u&p[0]&0x7FFF == p[0] {
-				if len(p) == 1 && n.v != nil {
+			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 { // TODO #
+				if len(p) == 0 && n.v != nil {
 					vv = append(vv, n.v)
 				}
-				vv = append(vv, n.n.Match(p[1:])...)
+				vv = append(vv, n.n.Match(p)...)
 			}
 		}
 	}

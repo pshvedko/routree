@@ -18,7 +18,7 @@ func (r phoneReader) ReadByte() (byte, error) {
 		return 0, err
 	}
 	switch c {
-	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '#':
 		return c, nil
 	default:
 		return 0, errIllegalSymbol(c)

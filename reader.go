@@ -37,12 +37,12 @@ func readDigit(r io.ByteReader) (uint16, error) {
 		return makeDigit(c)
 	case '.':
 		return 0x3FF, nil
+	case '#':
+		return 0x4000, nil
 	case '*':
 		return readEnd(r)
 	case '[':
 		return readDigitFirst(r)
-	case '#':
-		fallthrough // TODO return 0x4000
 	default:
 		return 0, errIllegalSymbol(c)
 	}
