@@ -116,6 +116,9 @@ func TestParsePattern(t *testing.T) {
 		}, {
 			args: "123#*",
 			want: []Pattern{{2, 4, 8 | 0x4000 | 0x8000}},
+		}, {
+			args: "[1|23]",
+			err:  ErrIllegalSymbol{'3'},
 		},
 	}
 	for _, tt := range tests {
