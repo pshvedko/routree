@@ -119,6 +119,9 @@ func TestParsePattern(t *testing.T) {
 		}, {
 			args: "[1|23]",
 			err:  ErrIllegalSymbol{'3'},
+		}, {
+			args: "[1-23]",
+			err:  ErrIllegalSymbol{'3'},
 		},
 	}
 	for _, tt := range tests {
