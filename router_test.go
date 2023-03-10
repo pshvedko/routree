@@ -300,3 +300,45 @@ func ExampleRouter_Add() {
 	// 17211234567  -> [5:"1(72[0-3|4-7|8|9],5[5|7].)......*" 0:".*"]
 	// 15555555555  -> [5:"1(72[0-3|4-7|8|9],5[5|7].)......*" 0:".*"]
 }
+
+func makeRouter() (r Router) {
+	defer println("initialized")
+	for u0 := 0; u0 < 10; u0++ {
+		for u1 := 0; u1 < 10; u1++ {
+			for u2 := 0; u2 < 10; u2++ {
+				for u3 := 0; u3 < 10; u3++ {
+					r.Add([]Pattern{{1 << u0, 1 << u1, 1 << u2, 1 << u3, 0x3FF | 0x8000}}, u0*u1*u2*u3)
+				}
+			}
+		}
+	}
+	return
+}
+
+var router = makeRouter()
+
+func BenchmarkRouter_Add(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		u0 := i / 1 % 10
+		u1 := i / 10 % 10
+		u2 := i / 100 % 10
+		u3 := i / 1000 % 10
+		router.Add([]Pattern{{1 << u0, 1 << u1, 1 << u2, 1 << u3, 0x3FF | 0x8000}}, u0*u1*u2*u3)
+	}
+}
+
+func BenchmarkRouter_Match(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		u3 := i / 1 % 10
+		u2 := i / 10 % 10
+		u1 := i / 100 % 10
+		u0 := i / 1000 % 10
+		v := router.Match(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4})
+		if len(v) != 1 {
+			b.Fatalf("result length %d", len(v))
+		}
+		if v[0] != u0*u1*u2*u3 {
+			b.Fatalf("result %d != %d", v[0], u0*u1*u2*u3)
+		}
+	}
+}
