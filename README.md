@@ -42,3 +42,12 @@ for _, number := range []string{
 // 15555555555  -> [5:"1(72[0-3|4-7|8|9],5[5|7].)......*" 0:".*"]
 
 ```
+
+---
+
+```
+BenchmarkRouter_Add
+BenchmarkRouter_Add-16      	 9208640	       165.0 ns/op
+BenchmarkRouter_Match
+BenchmarkRouter_Match-16    	  794656	      1845 ns/op
+```

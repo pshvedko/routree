@@ -332,7 +332,7 @@ func BenchmarkRouter_Match(b *testing.B) {
 		u2 := i / 10 % 10
 		u1 := i / 100 % 10
 		u0 := i / 1000 % 10
-		v := router.Match(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4})
+		v := router.Match(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4, 8, 16, 32})
 		if len(v) != 1 {
 			b.Fatalf("result length %d", len(v))
 		}
