@@ -46,8 +46,18 @@ for _, number := range []string{
 ---
 
 ```
-BenchmarkRouter_Add
-BenchmarkRouter_Add-16      	 9208640	       165.0 ns/op
-BenchmarkRouter_Match
-BenchmarkRouter_Match-16    	  794656	      1845 ns/op
+goos: linux
+goarch: amd64
+pkg: github.com/pshvedko/routree
+cpu: 11th Gen Intel(R) Core(TM) i7-11700F @ 2.50GHz
+BenchmarkRouter_Add-16      	 9059997	       197.0 ns/op
+BenchmarkRouter_Match-16    	  577052	      1740 ns/op
+PASS
+goos: freebsd
+goarch: amd64
+pkg: github.com/pshvedko/routree
+cpu: Intel(R) Core(TM) i3-6100T CPU @ 3.20GHz
+BenchmarkRouter_Add-4     	 5739992	       197.3 ns/op
+BenchmarkRouter_Match-4   	 1700040	       701.3 ns/op
+PASS
 ```
