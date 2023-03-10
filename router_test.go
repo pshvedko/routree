@@ -302,7 +302,6 @@ func ExampleRouter_Add() {
 }
 
 func makeRouter() (r Router) {
-	defer println("initialized")
 	for u0 := 0; u0 < 10; u0++ {
 		for u1 := 0; u1 < 10; u1++ {
 			for u2 := 0; u2 < 10; u2++ {
