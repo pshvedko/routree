@@ -6,9 +6,8 @@ import (
 
 type Node[T any] struct {
 	n Nodes[T]
+	v []T
 	u uint16
-	b byte
-	v T
 }
 
 type Nodes[T any] []*Node[T]
@@ -27,9 +26,9 @@ func (nn Nodes[T]) Swap(i, j int) {
 	nn[j] = n
 }
 
-func (nn *Nodes[T]) Add(p Pattern, v T) {
+func (nn *Nodes[T]) Add(p Pattern, v T) int {
 	if len(p) == 0 {
-		return
+		return 0
 	}
 	u, p := p[0], p[1:]
 	n := nn.Get(u)
@@ -45,11 +44,11 @@ func (nn *Nodes[T]) Add(p Pattern, v T) {
 	}
 	switch len(p) {
 	case 0:
-		n.v = v
-		n.b = 1
+		n.v = append(n.v, v)
 	default:
-		n.n.Add(p, v)
+		return n.n.Add(p, v)
 	}
+	return len(n.v)
 }
 
 func (nn Nodes[T]) Get(u uint16) *Node[T] {
@@ -71,8 +70,8 @@ func (nn Nodes[T]) Match(p Pattern) []T {
 		p = p[1:]
 		for _, n := range nn {
 			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 {
-				if len(p) == 0 && n.b == 1 {
-					vv = append(vv, n.v)
+				if len(p) == 0 {
+					vv = append(vv, n.v...)
 				}
 				vv = append(vv, n.n.Match(p)...)
 			}
@@ -87,9 +86,11 @@ func (nn Nodes[T]) MatchFunc(p Pattern, f func(T) bool) bool {
 		p = p[1:]
 		for _, n := range nn {
 			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 {
-				if len(p) == 0 && n.b == 1 {
-					if !f(n.v) {
-						return false
+				if len(p) == 0 {
+					for _, v := range n.v {
+						if !f(v) {
+							return false
+						}
 					}
 				}
 				if !n.n.MatchFunc(p, f) {
@@ -105,10 +106,12 @@ type Router[T any] struct {
 	n Nodes[T]
 }
 
-func (r *Router[T]) Add(patterns []Pattern, value T) {
+func (r *Router[T]) Add(patterns []Pattern, value T) int {
+	var n int
 	for _, pattern := range patterns {
-		r.n.Add(pattern, value)
+		n += r.n.Add(pattern, value)
 	}
+	return n
 }
 
 func (r Router[T]) Match(phone Pattern) []T {

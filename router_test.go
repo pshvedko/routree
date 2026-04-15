@@ -23,13 +23,12 @@ func Test_nodes_Add(t *testing.T) {
 			nn: nil,
 			args: args{
 				p: []uint16{1},
-				v: nil,
+				v: 1,
 			},
 			want: Nodes[any]{{
 				n: nil,
 				u: 1,
-				v: nil,
-				b: 1,
+				v: []any{1},
 			}},
 		},
 	}
@@ -316,25 +315,28 @@ func makeRouter() (r Router[int]) {
 	return
 }
 
-var router = makeRouter()
-
 func BenchmarkRouter_Add(b *testing.B) {
+	r := Router[int]{}
 	for i := 0; i < b.N; i++ {
 		u0 := i / 1 % 10
 		u1 := i / 10 % 10
 		u2 := i / 100 % 10
 		u3 := i / 1000 % 10
-		router.Add([]Pattern{{1 << u0, 1 << u1, 1 << u2, 1 << u3, 0x3FF | 0x8000}}, u0*u1*u2*u3)
+		r.Add([]Pattern{{1 << u0, 1 << u1, 1 << u2, 1 << u3, 0x3FF | 0x8000}}, u0*u1*u2*u3)
 	}
 }
 
 func BenchmarkRouter_Match(b *testing.B) {
+	r := makeRouter()
+
+	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
 		u3 := i / 1 % 10
 		u2 := i / 10 % 10
 		u1 := i / 100 % 10
 		u0 := i / 1000 % 10
-		v := router.Match(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4, 8, 16, 32})
+		v := r.Match(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4, 8, 16, 32})
 		if len(v) != 1 {
 			b.Fatalf("result length %d", len(v))
 		}
@@ -345,6 +347,10 @@ func BenchmarkRouter_Match(b *testing.B) {
 }
 
 func BenchmarkRouter_MatchFunc(b *testing.B) {
+	r := makeRouter()
+
+	b.ResetTimer()
+
 	for i := 0; i < b.N; i++ {
 		u3 := i / 1 % 10
 		u2 := i / 10 % 10
@@ -352,7 +358,7 @@ func BenchmarkRouter_MatchFunc(b *testing.B) {
 		u0 := i / 1000 % 10
 		var count int
 		var found int
-		router.MatchFunc(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4, 8, 16, 32}, func(value int) bool {
+		r.MatchFunc(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4, 8, 16, 32}, func(value int) bool {
 			found = value
 			count++
 			return false
@@ -376,7 +382,7 @@ func genPhone(length int) string {
 }
 
 func BenchmarkRouter_Match_Random(b *testing.B) {
-	r := &Router[int]{}
+	r := Router[int]{}
 	count := 100_000
 
 	for i := 0; i < count; i++ {
@@ -395,5 +401,59 @@ func BenchmarkRouter_Match_Random(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		r.Match(testPhones[i%1000])
+	}
+}
+
+func TestRouter_Longest_Prefix_Match(t *testing.T) {
+	type args struct {
+		r Router[int]
+		p []Pattern
+		q Pattern
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		// TODO: Add test cases.
+		{
+			name: "",
+			args: args{
+				r: Router[int]{},
+				p: []Pattern{
+					0: {1, 0x3FF, 4}, // <- last
+					1: {1, 2, 0x3FF}, //
+					2: {1, 2, 4},     // <- most preferred
+					3: {1, 2, 6},     // <- next match
+				},
+				q: Pattern{1, 2, 4},
+			},
+			want: []int{2, 3, 1, 0},
+		},
+		{
+			name: "",
+			args: args{
+				r: Router[int]{},
+				p: []Pattern{
+					0: {0x3FF | 0x8000},
+					1: {0x3FF, 0x3FF, 0x3FF | 0x8000}, // <- next match
+					2: {0x3FF, 0x3FF, 0x3FF},          // <- most preferred
+				},
+				q: Pattern{1, 2, 3},
+			},
+			want: []int{2, 1, 0},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for v, p := range tt.args.p {
+				if got1 := tt.args.r.Add([]Pattern{p}, v); got1 != 1 {
+					t.Errorf("Add() = %v, want %v", got1, 1)
+				}
+			}
+			if got := tt.args.r.Match(tt.args.q); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Match() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
