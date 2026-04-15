@@ -2,6 +2,7 @@ package routree
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
 	"testing"
 )
@@ -9,13 +10,13 @@ import (
 func Test_nodes_Add(t *testing.T) {
 	type args struct {
 		p Pattern
-		v interface{}
+		v any
 	}
 	tests := []struct {
 		name string
-		nn   Nodes
+		nn   Nodes[any]
 		args args
-		want Nodes
+		want Nodes[any]
 	}{
 		// TODO: Add test cases.
 		{
@@ -24,10 +25,11 @@ func Test_nodes_Add(t *testing.T) {
 				p: []uint16{1},
 				v: nil,
 			},
-			want: Nodes{{
+			want: Nodes[any]{{
 				n: nil,
 				u: 1,
 				v: nil,
+				b: 1,
 			}},
 		},
 	}
@@ -47,13 +49,13 @@ func Test_nodes_At(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		nn   Nodes
+		nn   Nodes[any]
 		args args
-		want *Node
+		want *Node[any]
 	}{
 		// TODO: Add test cases.
 		{
-			nn: Nodes{{
+			nn: Nodes[any]{{
 				n: nil,
 				u: 0,
 				v: nil,
@@ -69,7 +71,7 @@ func Test_nodes_At(t *testing.T) {
 			args: args{
 				i: 1,
 			},
-			want: &Node{
+			want: &Node[any]{
 				n: nil,
 				u: 1,
 				v: nil,
@@ -91,13 +93,13 @@ func Test_nodes_Get(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		nn   Nodes
+		nn   Nodes[any]
 		args args
-		want *Node
+		want *Node[any]
 	}{
 		// TODO: Add test cases.
 		{
-			nn: Nodes{{
+			nn: Nodes[any]{{
 				n: nil,
 				u: 0,
 				v: nil,
@@ -113,7 +115,7 @@ func Test_nodes_Get(t *testing.T) {
 			args: args{
 				u: 1,
 			},
-			want: &Node{
+			want: &Node[any]{
 				n: nil,
 				u: 1,
 				v: nil,
@@ -132,12 +134,12 @@ func Test_nodes_Get(t *testing.T) {
 func Test_nodes_Len(t *testing.T) {
 	tests := []struct {
 		name string
-		nn   Nodes
+		nn   Nodes[any]
 		want int
 	}{
 		// TODO: Add test cases.
 		{
-			nn: Nodes{{
+			nn: Nodes[any]{{
 				n: nil,
 				u: 0,
 				v: nil,
@@ -169,13 +171,13 @@ func Test_nodes_Less(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		nn   Nodes
+		nn   Nodes[any]
 		args args
 		want bool
 	}{
 		// TODO: Add test cases.
 		{
-			nn: Nodes{{
+			nn: Nodes[any]{{
 				n: nil,
 				u: 0,
 				v: nil,
@@ -211,13 +213,13 @@ func Test_nodes_Swap(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		nn   Nodes
+		nn   Nodes[any]
 		args args
-		want Nodes
+		want Nodes[any]
 	}{
 		// TODO: Add test cases.
 		{
-			nn: Nodes{{
+			nn: Nodes[any]{{
 				n: nil,
 				u: 0,
 				v: nil,
@@ -234,7 +236,7 @@ func Test_nodes_Swap(t *testing.T) {
 				i: 0,
 				j: 1,
 			},
-			want: Nodes{{
+			want: Nodes[any]{{
 				n: nil,
 				u: 1,
 				v: nil,
@@ -260,7 +262,7 @@ func Test_nodes_Swap(t *testing.T) {
 }
 
 func ExampleRouter_Add() {
-	r := Router{}
+	r := Router[string]{}
 	for i, pattern := range map[int]string{
 		0: ".*",
 		1: "7495123.*",
@@ -301,7 +303,7 @@ func ExampleRouter_Add() {
 	// 15555555555  -> [5:"1(72[0-3|4-7|8|9],5[5|7].)......*" 0:".*"]
 }
 
-func makeRouter() (r Router) {
+func makeRouter() (r Router[int]) {
 	for u0 := 0; u0 < 10; u0++ {
 		for u1 := 0; u1 < 10; u1++ {
 			for u2 := 0; u2 < 10; u2++ {
@@ -339,5 +341,59 @@ func BenchmarkRouter_Match(b *testing.B) {
 		if v[0] != u0*u1*u2*u3 {
 			b.Fatalf("result %d != %d", v[0], u0*u1*u2*u3)
 		}
+	}
+}
+
+func BenchmarkRouter_MatchFunc(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		u3 := i / 1 % 10
+		u2 := i / 10 % 10
+		u1 := i / 100 % 10
+		u0 := i / 1000 % 10
+		var count int
+		var found int
+		router.MatchFunc(Pattern{1 << u0, 1 << u1, 1 << u2, 1 << u3, 1, 2, 4, 8, 16, 32}, func(value int) bool {
+			found = value
+			count++
+			return false
+		})
+		if count != 1 {
+			b.Fatalf("result length %d", count)
+		}
+		if found != u0*u1*u2*u3 {
+			b.Fatalf("result %d != %d", found, u0*u1*u2*u3)
+		}
+	}
+}
+
+func genPhone(length int) string {
+	digits := "0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = digits[rand.Intn(len(digits))]
+	}
+	return string(b)
+}
+
+func BenchmarkRouter_Match_Random(b *testing.B) {
+	r := &Router[int]{}
+	count := 100_000
+
+	for i := 0; i < count; i++ {
+		pattern := fmt.Sprintf("7%s.*", genPhone(rand.Intn(7)+3))
+		patterns, _ := ParsePattern(pattern)
+		r.Add(patterns, i)
+	}
+
+	testPhones := make([]Pattern, 1000)
+	for i := 0; i < 1000; i++ {
+		p, _ := ParsePhone("7" + genPhone(10))
+		testPhones[i] = p
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		r.Match(testPhones[i%1000])
 	}
 }

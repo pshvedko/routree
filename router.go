@@ -4,36 +4,37 @@ import (
 	"sort"
 )
 
-type Node struct {
-	n Nodes
+type Node[T any] struct {
+	n Nodes[T]
 	u uint16
-	v interface{}
+	b byte
+	v T
 }
 
-type Nodes []*Node
+type Nodes[T any] []*Node[T]
 
-func (nn Nodes) Len() int {
+func (nn Nodes[T]) Len() int {
 	return len(nn)
 }
 
-func (nn Nodes) Less(i, j int) bool {
+func (nn Nodes[T]) Less(i, j int) bool {
 	return nn[i].u < nn[j].u
 }
 
-func (nn Nodes) Swap(i, j int) {
+func (nn Nodes[T]) Swap(i, j int) {
 	n := nn[i]
 	nn[i] = nn[j]
 	nn[j] = n
 }
 
-func (nn *Nodes) Add(p Pattern, v interface{}) {
+func (nn *Nodes[T]) Add(p Pattern, v T) {
 	if len(p) == 0 {
 		return
 	}
 	u, p := p[0], p[1:]
 	n := nn.Get(u)
 	if n == nil {
-		n = &Node{
+		n = &Node[T]{
 			u: u,
 		}
 		if u&0x8000 == 0x8000 {
@@ -45,12 +46,13 @@ func (nn *Nodes) Add(p Pattern, v interface{}) {
 	switch len(p) {
 	case 0:
 		n.v = v
+		n.b = 1
 	default:
 		n.n.Add(p, v)
 	}
 }
 
-func (nn Nodes) Get(u uint16) *Node {
+func (nn Nodes[T]) Get(u uint16) *Node[T] {
 	i := sort.Search(len(nn), func(i int) bool { return nn[i].u >= u })
 	if i < len(nn) && nn[i].u == u {
 		return nn[i]
@@ -58,18 +60,18 @@ func (nn Nodes) Get(u uint16) *Node {
 	return nil
 }
 
-func (nn Nodes) At(i int) *Node {
+func (nn Nodes[T]) At(i int) *Node[T] {
 	return nn[i]
 }
 
-func (nn Nodes) Match(p Pattern) []interface{} {
-	var vv []interface{}
+func (nn Nodes[T]) Match(p Pattern) []T {
+	var vv []T
 	if len(p) > 0 {
 		u := p[0]
 		p = p[1:]
 		for _, n := range nn {
 			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 {
-				if len(p) == 0 && n.v != nil {
+				if len(p) == 0 && n.b == 1 {
 					vv = append(vv, n.v)
 				}
 				vv = append(vv, n.n.Match(p)...)
@@ -79,16 +81,40 @@ func (nn Nodes) Match(p Pattern) []interface{} {
 	return vv
 }
 
-type Router struct {
-	n Nodes
+func (nn Nodes[T]) MatchFunc(p Pattern, f func(T) bool) bool {
+	if len(p) > 0 {
+		u := p[0]
+		p = p[1:]
+		for _, n := range nn {
+			if n.u&u&0x7FFF == u && n.u&0x4000 == u&0x4000 {
+				if len(p) == 0 && n.b == 1 {
+					if !f(n.v) {
+						return false
+					}
+				}
+				if !n.n.MatchFunc(p, f) {
+					return false
+				}
+			}
+		}
+	}
+	return true
 }
 
-func (r *Router) Add(patterns []Pattern, value interface{}) {
+type Router[T any] struct {
+	n Nodes[T]
+}
+
+func (r *Router[T]) Add(patterns []Pattern, value T) {
 	for _, pattern := range patterns {
 		r.n.Add(pattern, value)
 	}
 }
 
-func (r Router) Match(phone Pattern) []interface{} {
+func (r Router[T]) Match(phone Pattern) []T {
 	return r.n.Match(phone)
+}
+
+func (r Router[T]) MatchFunc(phone Pattern, f func(T) bool) bool {
+	return r.n.MatchFunc(phone, f)
 }
