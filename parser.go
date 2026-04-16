@@ -3,6 +3,7 @@ package routree
 import (
 	"bytes"
 	"io"
+	"strings"
 )
 
 // Pattern ...
@@ -25,9 +26,22 @@ func (r phoneReader) ReadByte() (byte, error) {
 	}
 }
 
+type Option interface{ Format(string) (string, error) }
+
+type OptionFunc func(string) (string, error)
+
+func (f OptionFunc) Format(number string) (string, error) { return f(number) }
+
 // ParsePhone ...
-func ParsePhone(number string) (Pattern, error) {
-	patterns, err := Parse(phoneReader{r: bytes.NewBufferString(number)})
+func ParsePhone(number string, options ...Option) (Pattern, error) {
+	for _, option := range options {
+		var err error
+		number, err = option.Format(number)
+		if err != nil {
+			return nil, err
+		}
+	}
+	patterns, err := Parse(phoneReader{r: strings.NewReader(number)})
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +50,7 @@ func ParsePhone(number string) (Pattern, error) {
 
 // ParsePattern ...
 func ParsePattern(pattern string) ([]Pattern, error) {
-	return Parse(bytes.NewBufferString(pattern))
+	return Parse(strings.NewReader(pattern))
 }
 
 // Parse ...

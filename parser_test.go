@@ -128,11 +128,64 @@ func TestParsePattern(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParsePattern(tt.args)
 			if !reflect.DeepEqual(err, tt.err) {
-				t.Errorf("readPattern() error = %v, err %v", err, tt.err)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ParsePattern() error = %v, err %v", err, tt.err)
+			} else if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ParsePattern() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParsePhone(t *testing.T) {
+	type args struct {
+		number  string
+		options []Option
+	}
+	tests := []struct {
+		name string
+		args args
+		want Pattern
+		err  error
+	}{
+		// TODO: Add test cases.
+		{
+			name: "",
+			args: args{
+				number: "79991234567",
+			},
+			want: Pattern{128, 512, 512, 512, 2, 4, 8, 16, 32, 64, 128},
+		},
+		{
+			name: "",
+			args: args{
+				number:  "+79991234567",
+				options: []Option{E164},
+			},
+			want: Pattern{128, 512, 512, 512, 2, 4, 8, 16, 32, 64, 128},
+		},
+		{
+			name: "",
+			args: args{
+				number:  "+",
+				options: []Option{E164},
+			},
+			err: io.ErrUnexpectedEOF,
+		},
+		{
+			name: "",
+			args: args{
+				options: []Option{ErrFormat(0)},
+			},
+			err: ErrFormat(0),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParsePhone(tt.args.number, tt.args.options...)
+			if !reflect.DeepEqual(err, tt.err) {
+				t.Errorf("ParsePhone() error = %v, err %v", err, tt.err)
+			} else if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ParsePhone() got = %#v, want %#v", got, tt.want)
 			}
 		})
 	}
