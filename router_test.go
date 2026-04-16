@@ -411,9 +411,10 @@ func TestRouter_Longest_Prefix_Match(t *testing.T) {
 		q Pattern
 	}
 	tests := []struct {
-		name string
-		args args
-		want []int
+		name  string
+		args  args
+		want  []int
+		want1 []int
 	}{
 		// TODO: Add test cases.
 		{
@@ -428,7 +429,8 @@ func TestRouter_Longest_Prefix_Match(t *testing.T) {
 				},
 				q: Pattern{1, 2, 4},
 			},
-			want: []int{2, 3, 1, 0},
+			want:  []int{2, 3, 1, 0},
+			want1: []int{1, 1, 1, 1},
 		},
 		{
 			name: "",
@@ -438,17 +440,19 @@ func TestRouter_Longest_Prefix_Match(t *testing.T) {
 					0: {0x3FF | 0x8000},
 					1: {0x3FF, 0x3FF, 0x3FF | 0x8000}, // <- next match
 					2: {0x3FF, 0x3FF, 0x3FF},          // <- most preferred
+					3: {0x3FF, 0x3FF, 0x3FF},          // <- most preferred, second value
 				},
-				q: Pattern{1, 2, 3},
+				q: Pattern{1, 2, 4},
 			},
-			want: []int{2, 1, 0},
+			want:  []int{2, 3, 1, 0},
+			want1: []int{1, 1, 1, 2},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			for v, p := range tt.args.p {
-				if got1 := tt.args.r.Add([]Pattern{p}, v); got1 != 1 {
-					t.Errorf("Add() = %v, want %v", got1, 1)
+			for v := range tt.args.p {
+				if got1 := tt.args.r.Add(tt.args.p[v:v+1], v); got1 != tt.want1[v] {
+					t.Errorf("Add() = %v, want %v", got1, tt.want1[v])
 				}
 			}
 			if got := tt.args.r.Match(tt.args.q); !reflect.DeepEqual(got, tt.want) {
