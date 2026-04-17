@@ -7,7 +7,7 @@ import (
 type Node[T any] struct {
 	n Nodes[T]
 	v []T
-	u uint16
+	u Digit
 }
 
 type Nodes[T any] []*Node[T]
@@ -51,7 +51,7 @@ func (nn *Nodes[T]) Add(p Pattern, v T) int {
 	return len(n.v)
 }
 
-func (nn Nodes[T]) Get(u uint16) *Node[T] {
+func (nn Nodes[T]) Get(u Digit) *Node[T] {
 	i := sort.Search(len(nn), func(i int) bool { return nn[i].u >= u })
 	if i < len(nn) && nn[i].u == u {
 		return nn[i]
@@ -121,3 +121,20 @@ func (r Router[T]) Match(phone Pattern) []T {
 func (r Router[T]) MatchFunc(phone Pattern, f func(T) bool) bool {
 	return r.n.MatchFunc(phone, f)
 }
+
+func (r Router[T]) Dump(f func(u Digit, v []T, l int, e bool)) {
+	r.n.dump(f, 0)
+}
+
+func (nn Nodes[T]) dump(f func(Digit, []T, int, bool), l int) {
+	z := len(nn) - 1
+	for i, n := range nn {
+		f(n.u, n.v, l, i == z)
+		if n.u&0x8000 != 0x8000 {
+			n.n.dump(f, l+1)
+		}
+	}
+}
+
+const name2 = 1 << 10
+const name1 = 0x8000

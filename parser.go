@@ -7,7 +7,7 @@ import (
 )
 
 // Pattern ...
-type Pattern []uint16
+type Pattern []Digit
 
 type phoneReader struct {
 	r io.ByteReader

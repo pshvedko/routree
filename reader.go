@@ -4,8 +4,8 @@ import (
 	"io"
 )
 
-func readPattern(r io.ByteReader) ([]uint16, error) {
-	var p []uint16
+func readPattern(r io.ByteReader) ([]Digit, error) {
+	var p []Digit
 	for {
 		u, err := readDigit(r)
 		switch err {
@@ -27,7 +27,7 @@ func readPattern(r io.ByteReader) ([]uint16, error) {
 	}
 }
 
-func readDigit(r io.ByteReader) (uint16, error) {
+func readDigit(r io.ByteReader) (Digit, error) {
 	c, err := r.ReadByte()
 	if err != nil {
 		return 0, err
@@ -48,7 +48,7 @@ func readDigit(r io.ByteReader) (uint16, error) {
 	}
 }
 
-func readDigitFirst(r io.ByteReader) (uint16, error) {
+func readDigitFirst(r io.ByteReader) (Digit, error) {
 	c, err := r.ReadByte()
 	if err != nil {
 		return 0, err
@@ -61,7 +61,7 @@ func readDigitFirst(r io.ByteReader) (uint16, error) {
 	}
 }
 
-func readDigitNext(r io.ByteReader, a byte) (uint16, error) {
+func readDigitNext(r io.ByteReader, a byte) (Digit, error) {
 	c, err := r.ReadByte()
 	if err != nil {
 		return 0, err
@@ -78,7 +78,7 @@ func readDigitNext(r io.ByteReader, a byte) (uint16, error) {
 	}
 }
 
-func readDigitLast(r io.ByteReader, a byte) (uint16, error) {
+func readDigitLast(r io.ByteReader, a byte) (Digit, error) {
 	c, err := r.ReadByte()
 	if err != nil {
 		return 0, err
@@ -91,7 +91,7 @@ func readDigitLast(r io.ByteReader, a byte) (uint16, error) {
 	}
 }
 
-func readDigitRange(r io.ByteReader, a, b byte) (uint16, error) {
+func readDigitRange(r io.ByteReader, a, b byte) (Digit, error) {
 	c, err := r.ReadByte()
 	if err != nil {
 		return 0, err
@@ -106,7 +106,7 @@ func readDigitRange(r io.ByteReader, a, b byte) (uint16, error) {
 	}
 }
 
-func readEnd(r io.ByteReader) (uint16, error) {
+func readEnd(r io.ByteReader) (Digit, error) {
 	c, err := r.ReadByte()
 	switch err {
 	case nil:
@@ -118,7 +118,7 @@ func readEnd(r io.ByteReader) (uint16, error) {
 	}
 }
 
-func joinDigitRange(r io.ByteReader, a, b byte) (uint16, error) {
+func joinDigitRange(r io.ByteReader, a, b byte) (Digit, error) {
 	f, err := readDigitFirst(r)
 	if err != nil {
 		return 0, err
@@ -130,7 +130,7 @@ func joinDigitRange(r io.ByteReader, a, b byte) (uint16, error) {
 	return f | l, nil
 }
 
-func joinDigit(r io.ByteReader, a byte) (uint16, error) {
+func joinDigit(r io.ByteReader, a byte) (Digit, error) {
 	f, err := readDigitFirst(r)
 	if err != nil {
 		return 0, err
@@ -142,7 +142,7 @@ func joinDigit(r io.ByteReader, a byte) (uint16, error) {
 	return f | l, nil
 }
 
-func makeDigitRange(a, b byte) (uint16, error) {
+func makeDigitRange(a, b byte) (Digit, error) {
 	f, err := makeDigit(a)
 	if err != nil {
 		return 0, err
@@ -154,7 +154,7 @@ func makeDigitRange(a, b byte) (uint16, error) {
 	if f >= l {
 		return 0, errIllegalRange(a, b)
 	}
-	var d uint16
+	var d Digit
 	for f <= l {
 		d |= f
 		f <<= 1
@@ -162,7 +162,7 @@ func makeDigitRange(a, b byte) (uint16, error) {
 	return d, nil
 }
 
-func makeDigit(c byte) (uint16, error) {
+func makeDigit(c byte) (Digit, error) {
 	if c < '0' || c > '9' {
 		return 0, errIllegalSymbol(c)
 	}
