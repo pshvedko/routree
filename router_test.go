@@ -307,15 +307,18 @@ func ExampleRouter_Add() {
 			}
 		}
 		if e {
-			p.WriteString("└──")
+			p.WriteString("└── [")
 		} else {
-			p.WriteString("├──")
+			p.WriteString("├── [")
 		}
-		fmt.Printf("%s [%s]", p.String(), bytes.Replace(u.Split(), []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}, []byte{'.'}, 1))
+		p.Write(bytes.Replace(u.Split(), []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}, []byte{'.'}, 1))
+		p.WriteByte(']')
 		if len(v) != 0 {
-			fmt.Printf(" = %v", v)
+			p.WriteString(" = [")
+			p.WriteString(strings.Join(v, " "))
+			p.WriteByte(']')
 		}
-		fmt.Println()
+		fmt.Println(p.String())
 	})
 	// Output:
 	// 74951234567  -> [1:"7495123.*" 4:"7(49[5|9])......." 2:"7(49[5|9]).......*" 3:"7(49[5|9])......*" 0:".*"]

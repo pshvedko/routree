@@ -46,16 +46,19 @@ r.Dump(func(u Digit, v []string, l int, e bool) {
 			p.WriteString("│   ")
 		}
 	}
-	if e {
-		p.WriteString("└──")
-	} else {
-		p.WriteString("├──")
-	}
-	fmt.Printf("%s [%s]", p.String(), bytes.Replace(u.Split(), []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}, []byte{'.'}, 1))
-	if len(v) != 0 {
-		fmt.Printf(" = %v", v)
-	}
-	fmt.Println()
+    if e {
+        p.WriteString("└── [")
+    } else {
+        p.WriteString("├── [")
+    }
+    p.Write(bytes.Replace(u.Split(), []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}, []byte{'.'}, 1))
+    p.WriteByte(']')
+    if len(v) != 0 {
+        p.WriteString(" = [")
+        p.WriteString(strings.Join(v, " "))
+        p.WriteByte(']')
+    }
+    fmt.Println(p.String())
 })
 // Output:
 // 74951234567  -> [1:"7495123.*" 4:"7(49[5|9])......." 2:"7(49[5|9]).......*" 3:"7(49[5|9])......*" 0:".*"]
