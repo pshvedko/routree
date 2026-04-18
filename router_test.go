@@ -93,10 +93,11 @@ func Test_nodes_Get(t *testing.T) {
 		u Digit
 	}
 	tests := []struct {
-		name string
-		nn   Nodes[any]
-		args args
-		want *Node[any]
+		name  string
+		nn    Nodes[any]
+		args  args
+		want  *Node[any]
+		want1 int
 	}{
 		// TODO: Add test cases.
 		{
@@ -121,12 +122,47 @@ func Test_nodes_Get(t *testing.T) {
 				u: 1,
 				v: nil,
 			},
+			want1: 1,
+		}, {
+			nn: Nodes[any]{{
+				n: nil,
+				u: 0,
+				v: nil,
+			}, {
+				n: nil,
+				u: 1,
+				v: nil,
+			}, {
+				n: nil,
+				u: 2,
+				v: nil,
+			}},
+			args: args{
+				u: 3,
+			},
+			want:  nil,
+			want1: 3,
+		}, {
+			nn: Nodes[any]{{
+				n: nil,
+				u: 1,
+				v: nil,
+			}, {
+				n: nil,
+				u: 2,
+				v: nil,
+			}},
+			args: args{
+				u: 0,
+			},
+			want:  nil,
+			want1: 0,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.nn.Get(tt.args.u); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Get() = %v, want %v", got, tt.want)
+			if got1, got := tt.nn.Get(tt.args.u); !reflect.DeepEqual(got, tt.want) || !reflect.DeepEqual(got1, tt.want1) {
+				t.Errorf("Get() = %v, %v, want %v, %v", got1, got, tt.want1, tt.want)
 			}
 		})
 	}

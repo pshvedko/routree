@@ -31,7 +31,7 @@ func (nn *Nodes[T]) Add(p Pattern, v T) int {
 		return 0
 	}
 	u, p := p[0], p[1:]
-	n := nn.Get(u)
+	i, n := nn.Get(u)
 	if n == nil {
 		n = &Node[T]{
 			u: u,
@@ -40,7 +40,8 @@ func (nn *Nodes[T]) Add(p Pattern, v T) int {
 			n.n = append(n.n, n) // TODO unlink cyclic reference before delete
 		}
 		*nn = append(*nn, n)
-		sort.Sort(nn)
+		copy((*nn)[i+1:], (*nn)[i:])
+		(*nn)[i] = n
 	}
 	switch len(p) {
 	case 0:
@@ -51,12 +52,12 @@ func (nn *Nodes[T]) Add(p Pattern, v T) int {
 	return len(n.v)
 }
 
-func (nn Nodes[T]) Get(u Digit) *Node[T] {
+func (nn Nodes[T]) Get(u Digit) (int, *Node[T]) {
 	i := sort.Search(len(nn), func(i int) bool { return nn[i].u >= u })
 	if i < len(nn) && nn[i].u == u {
-		return nn[i]
+		return i, nn[i]
 	}
-	return nil
+	return i, nil
 }
 
 func (nn Nodes[T]) At(i int) *Node[T] {
@@ -135,6 +136,3 @@ func (nn Nodes[T]) dump(f func(Digit, []T, int, bool), l int) {
 		}
 	}
 }
-
-const name2 = 1 << 10
-const name1 = 0x8000
