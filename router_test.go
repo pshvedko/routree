@@ -418,7 +418,7 @@ func BenchmarkRouter_Match(b *testing.B) {
 	}
 }
 
-func BenchmarkRouter_MatchFunc(b *testing.B) {
+func BenchmarkRouter_MatchFunc_First(b *testing.B) {
 	r := makeRouter()
 
 	b.ResetTimer()
@@ -453,7 +453,7 @@ func genPhone(length int) string {
 	return string(b)
 }
 
-func BenchmarkRouter_Match_Random(b *testing.B) {
+func BenchmarkRouter_Random100k(b *testing.B) {
 	r := Router[int]{}
 	count := 100_000
 
@@ -471,9 +471,23 @@ func BenchmarkRouter_Match_Random(b *testing.B) {
 
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
-		r.Match(testPhones[i%1000])
-	}
+	b.Run("Match", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			r.Match(testPhones[i%1000])
+		}
+	})
+	b.Run("MatchFunc", func(b *testing.B) {
+		b.Run("All", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				r.MatchFunc(testPhones[i%1000], func(int) bool { return true })
+			}
+		})
+		b.Run("First", func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				r.MatchFunc(testPhones[i%1000], func(int) bool { return false })
+			}
+		})
+	})
 }
 
 func TestRouter_Longest_Prefix_Match(t *testing.T) {

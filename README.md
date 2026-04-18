@@ -37,15 +37,15 @@ for _, number := range []string{
 m := make(map[int]bool)
 fmt.Println("┬")
 r.Dump(func(u Digit, v []string, l int, e bool) {
-	m[l] = e
-	var p strings.Builder
-	for i := 0; i < l; i++ {
-		if m[i] {
-			p.WriteString("    ")
-		} else {
-			p.WriteString("│   ")
-		}
-	}
+    m[l] = e
+    var p strings.Builder
+    for i := 0; i < l; i++ {
+        if m[i] {
+            p.WriteString("    ")
+        } else {
+            p.WriteString("│   ")
+        }
+    }
     if e {
         p.WriteString("└── [")
     } else {
