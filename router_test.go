@@ -489,7 +489,7 @@ func genPhone(length int) string {
 	return string(b)
 }
 
-func BenchmarkRouter_Random100k(b *testing.B) {
+func BenchmarkRouter_100k(b *testing.B) {
 	r := Router[int]{}
 	count := 100_000
 
